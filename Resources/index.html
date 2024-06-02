@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        label {
+            display: block;
+            margin-left: 20px;
+        }
+
+        body {
+            font-size: 12px;
+            font-family: Arial, Helvetica, sans-serif;
+            width: 225px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Toggleable Options (check to disable YT feature)</h3>
+    <form>
+        <summary> Sync Settings</summary>
+        <label><input type="checkbox" name="syncSettings" id="syncSettings">Sync settings across browsers </label>
+
+        <details>
+            <summary>Video Recommendation</summary>
+            <label><input type="checkbox" name="suggestionsFeed" value="Suggestions Feed"> Suggestions feed </label>
+            <label><input type="checkbox" name="videoContent" value="Video Content"> Video Content </label>
+        </details>
+
+        <details>
+            <summary>Homepage Sidebar</summary>
+            <label><input type="checkbox" name="shortsTab" value="Shorts"> Shorts </label>
+            <label><input type="checkbox" name="subscriptionsTab" value="Subscriptions"> Subscriptions </label>
+            <label><input type="checkbox" name="exploreTab" value="Explore"> Explore </label>
+        </details>
+
+        <details>
+            <summary>Views, Comments, Subscribers</summary>
+            <label><input type = "checkbox" name = "views" value="Views"> Views</label>
+            <label><input type = "checkbox" name = "subscribers" value="Subscribers"> Subscribers</label>
+            <label><input type = "checkbox" name = "comments" value="Comments"> Comments</label>
+        </details>
+            
+        <details id="thumbnailsSection">
+            <summary>Thumbnails</summary>
+            <label><input type="radio" name="thumbnails" id="hidden" value="hidden"> Hidden </label>
+            <label><input type="radio" name="thumbnails" id="hidden-except-hover" value="hidden-except-hover"> Hidden (except when hovered) </label>
+            <label><input type="radio" name="thumbnails" id="blurred" value="blurred"> Blurred </label>
+            <label><input type="radio" name="thumbnails" id="solid-color" value="solid-color"> Solid Color </label>
+            <label><input type="radio" name="thumbnails" id="normal" value="normal" checked> Normal </label>
+        </details>
+
+        <details>
+            <summary>Endscreen and shorts</summary>
+            <label><input type="checkbox" name="endScreen" value="endScreen"> Endscreen </label>
+            <label><input type="checkbox" name="shorts" value="Shorts"> Shorts </label>
+        </details>
+
+        <p id="status">✅ <span data-i18n="options_loaded">Preferences loaded</span></p>
+
+    </form>
+
+    <script src = "varStorage.js"></script>
+    <script src = "options.js"></script>
+</body>
+
+</html>
