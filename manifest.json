@@ -33,6 +33,7 @@
     "browser_style": true
   },
   "permissions": [
+    "scripting",
     "storage"
   ]
 }

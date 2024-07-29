@@ -1,8 +1,8 @@
-
+let userSubscriptions = [];
 
 const css = {
-  "normal": "/* Nothing to do */",
-  "hidden": `
+  normal: "/* Nothing to do */",
+  hidden: `
 ytd-thumbnail, ytd-playlist-thumbnail, .rich-thumbnail, .ytd-playlist-header-renderer.thumbnail-wrapper, #thumbnail, #video-preview, ytm-media-item .media-item-thumbnail-container, ytm-reel-item-renderer .video-thumbnail-container-vertical, ytm-playlist-video-renderer .compact-media-item-image, .ytp-videowall-still-image {
   display: none !important;
 }
@@ -48,7 +48,7 @@ ytd-playlist-video-renderer:not(:hover) ytd-thumbnail,
 .ytp-videowall-still-info-content {
   opacity: 1 !important;
 }`,
-  "blurred": `ytd-thumbnail img, ytd-playlist-thumbnail img, .video-thumbnail-img, .ytp-videowall-still-image {
+  blurred: `ytd-thumbnail img, ytd-playlist-thumbnail img, .video-thumbnail-img, .ytp-videowall-still-image {
   filter: blur(16px);
 }`,
   "solid-color": `
@@ -75,43 +75,42 @@ ytd-thumbnail #thumbnail.ytd-thumbnail {
 }`,
 };
 
-
 const thumbnailsElem = document.createElement("style");
 document.documentElement.appendChild(thumbnailsElem);
 
 // Homescreen elements
 const videoContentCSS = {
-  'inject': `#contents.style-scope.ytd-rich-grid-renderer{
+  inject: `#contents.style-scope.ytd-rich-grid-renderer{
   display: none;
 }
 #related.style-scope.ytd-watch-flexy{
   display: none;
 },`,
-  'noInject': `{
+  noInject: `{
   display: flex;
 }
 #related.style-scope.ytd-watch-flexy{
   display: none;
 }
-`
+`,
 };
 const videoContentElem = document.createElement("style");
 document.documentElement.appendChild(videoContentElem);
 
 const suggestionsFeedCSS = {
-  'inject': `#header.style-scope.ytd-rich-grid-renderer{
+  inject: `#header.style-scope.ytd-rich-grid-renderer{
   display: none;
 },
 #scroll-container.style-scope.yt-chip-cloud-renderer{
   display: none;
 }`,
 
-  'noInject': `{
+  noInject: `{
   display: flex;
 },
 #scroll-container.style-scope.yt-chip-cloud-renderer{
   display: none;
-}`
+}`,
 };
 const suggestionsFeedElem = document.createElement("style");
 document.documentElement.appendChild(suggestionsFeedElem);
@@ -122,118 +121,165 @@ const updateSidebarElem = async () => {
 
   // Block shorts
   const anchorShorts = document.querySelectorAll('a[title="Shorts"]');
-  anchorShorts.forEach(element => {
+  anchorShorts.forEach((element) => {
     // Access the parent class of each <a> element to delete the container of the shorts tabs
     const anchorShort = element.parentElement;
-    if (options.shortsTab) { anchorShort.style.display = 'none'; }
+    if (options.shortsTab) {
+      anchorShort.style.display = "none";
+    }
   });
 
-  const anchorSubscriptions = document.querySelectorAll('a[title="Subscriptions"]');
+  const anchorSubscriptions = document.querySelectorAll(
+    'a[title="Subscriptions"]'
+  );
 
   // Subscriptions
-  anchorSubscriptions.forEach(element => {
+  anchorSubscriptions.forEach((element) => {
     const anchorSubscription = element.parentElement;
-    if (options.subscriptionsTab) { anchorSubscription.style.display = 'none'; }
+    if (options.subscriptionsTab) {
+      anchorSubscription.style.display = "none";
+    }
   });
 
   // Explore section
-  const sections = document.getElementById('sections');
-  const exploreTab = sections.children[1];
-  if(options.exploreTab){exploreTab.style.display = 'none';}  
+  const sections = document.getElementById("sections");
+  let subscriptionsTab, exploreTab;
 
+  // Determine tabs based on the number of children
+  switch (sections.childElementCount) {
+    case 4:
+      subscriptionsTab = false;
+      exploreTab = sections.children[1];
+      break;
+    case 5:
+      // Standard layout with both Subscriptions and Explore tabs
+      subscriptionsTab = sections.children[1];
+      exploreTab = sections.children[2];
+      break;
+    default:
+      console.error("Unexpected number of tabs");
+      break;
+  }
 
-}
+  if (options.subscriptionsTab && subscriptionsTab) {
+    subscriptionsTab.style.display = "none";
+  }
+  if (options.exploreTab) {
+    exploreTab.style.display = "none";
+  }
+};
 
-button = document.querySelector('div#start.style-scope.ytd-masthead');
+button = document.querySelector("div#start.style-scope.ytd-masthead");
 
 // Views, subs, and comments
 const viewsElemOne = document.createElement("style");
 document.documentElement.appendChild(viewsElemOne);
 
-
 const viewsFunc = async () => {
   const options = await loadOptions();
-  const parentViews = document.querySelectorAll("div#metadata-line.style-scope.ytd-video-meta-block");
-  parentViews.forEach(parent => {
+  const parentViews = document.querySelectorAll(
+    "div#metadata-line.style-scope.ytd-video-meta-block"
+  );
+  parentViews.forEach((parent) => {
     const viewsAddCSS = parent.children[2];
-    viewsAddCSS.style = '';
+    viewsAddCSS.style = "";
     viewsAddCSS.classList.add("views-only-123");
-  })
+  });
   const viewsCSSOne = {
-    'inject': `.views-only-123{
+    inject: `.views-only-123{
       display: none !important;
-    }`
+    }`,
+  };
+  if (options.views) {
+    viewsElemOne.innerHTML = `${viewsCSSOne["inject"]}`;
   }
-  if (options.views) { viewsElemOne.innerHTML = `${viewsCSSOne['inject']}` };
 
   try {
-    const watchViews = document.querySelector('#info.style-scope.ytd-watch-info-text').firstElementChild;
-    watchViews.style = '';
+    const watchViews = document.querySelector(
+      "#info.style-scope.ytd-watch-info-text"
+    ).firstElementChild;
+    watchViews.style = "";
     watchViews.classList.add("views-only-123");
   } catch (e) {
     console.log();
   }
-}
+};
 
 const subsElem = document.createElement("style");
 document.documentElement.appendChild(subsElem);
 
 const subsFunc = async () => {
   const options = await loadOptions();
-  if (window.location.pathname.startsWith('/@')) {
-    const subsChan = document.querySelector('#subscriber-count.style-scope.ytd-c4-tabbed-header-renderer');
-    subsChan.style = '';
+  if (window.location.pathname.startsWith("/@")) {
+    const subsChan = document.querySelector(
+      "#subscriber-count.style-scope.ytd-c4-tabbed-header-renderer"
+    );
+    subsChan.style = "";
     subsChan.classList.add("subs-123");
   }
-  if (window.location.pathname === '/watch') {
-    const subsView = document.querySelector('#owner-sub-count.style-scope.ytd-video-owner-renderer');
-    subsView.style = '';
-    subsView.classList.add('subs-123');
+  if (window.location.pathname === "/watch") {
+    const subsView = document.querySelector(
+      "#owner-sub-count.style-scope.ytd-video-owner-renderer"
+    );
+    subsView.style = "";
+    subsView.classList.add("subs-123");
     descDel();
   }
   const subsCSS = {
-    'inject': `.subs-123{
+    inject: `.subs-123{
       display: none !important
-    }`
-  }
+    }`,
+  };
 
-  if (options.subscribers) { subsElem.innerHTML = `${subsCSS['inject']}` };
-}
+  if (options.subscribers) {
+    subsElem.innerHTML = `${subsCSS["inject"]}`;
+  }
+};
 
 const commentsElem = document.createElement("style");
 document.documentElement.appendChild(commentsElem);
 const commentsCSS = {
-  'inject': `#comments.style-scope.ytd-watch-flexy{
+  inject: `#comments.style-scope.ytd-watch-flexy{
     display: none !important    
-  }`
-}
+  }`,
+};
 
 // Function for shorts and subs
 
 function descDel() {
-  const moreButton = document.querySelector('#description-inner.style-scope.ytd-watch-metadata');
+  const moreButton = document.querySelector(
+    "#description-inner.style-scope.ytd-watch-metadata"
+  );
   moreButton.addEventListener("click", function () {
-    const desc = document.querySelector('ytd-video-description-infocards-section-renderer.style-scope.ytd-structured-description-content-renderer[at-start][at-end]');
+    const desc = document.querySelector(
+      "ytd-video-description-infocards-section-renderer.style-scope.ytd-structured-description-content-renderer[at-start][at-end]"
+    );
     desc.remove();
   });
 }
 
 function endscreen() {
-  for (let i of document.getElementsByClassName('ytp-endscreen-content')) { // removes all suggestions at the video end
+  for (let i of document.getElementsByClassName("ytp-endscreen-content")) {
+    // removes all suggestions at the video end
     i.remove();
   }
-  for (let i of document.getElementsByClassName('ytp-upnext ytp-suggestion-set')) { // removes next autoplay video
+  for (let i of document.getElementsByClassName(
+    "ytp-upnext ytp-suggestion-set"
+  )) {
+    // removes next autoplay video
     i.remove();
   }
 }
 
-
 // Shorts
 const removeShorts = () => {
-  Array.from(document.querySelectorAll(`a[href^="/shorts"]`)).forEach(a => {
+  Array.from(document.querySelectorAll(`a[href^="/shorts"]`)).forEach((a) => {
     let parent = a.parentElement;
 
-    while (parent && (!parent.tagName.startsWith('YTD-') || parent.tagName === 'YTD-THUMBNAIL')) {
+    while (
+      parent &&
+      (!parent.tagName.startsWith("YTD-") || parent.tagName === "YTD-THUMBNAIL")
+    ) {
       parent = parent.parentElement;
     }
 
@@ -253,53 +299,87 @@ const observeAndRemoveShorts = () => {
   removeShorts();
 };
 
+const getSubscrtiptions = () => {
+  const sections = document.getElementById("sections");
+  if (sections.childElementCount === 4) {
+    const subscriptionsTab = sections.children[1];
+    const items = subscriptionsTab.getElementById("items");
+    for (let i = 0; i < items.children.length - 1; i++) {
+      const subscription = items.children[0].children[0].children[2];
+      userSubscriptions.push(subscription.innerText);
+    }
+  }
+};
 
+const blockOutsideSubscriptions = () => {};
 
 const updateElem = async () => {
   const options = await loadOptions();
-  thumbnailsElem.innerHTML = `/* Injected by the Hide YouTube Thumbnails extension */ ${css[options.thumbnails]}`;
-  if (options.videoContent) { videoContentElem.innerHTML = `${videoContentCSS[window.location.pathname.startsWith('/@') ? 'noInject' : 'inject']}` };
-  if (options.suggestionsFeed) { suggestionsFeedElem.innerHTML = `${suggestionsFeedCSS[window.location.pathname.startsWith('/@') ? 'noInject' : 'inject']}`; }
+  thumbnailsElem.innerHTML = `/* Injected by the Hide YouTube Thumbnails extension */ ${
+    css[options.thumbnails]
+  }`;
+  if (options.videoContent) {
+    videoContentElem.innerHTML = `${
+      videoContentCSS[
+        window.location.pathname.startsWith("/@") ? "noInject" : "inject"
+      ]
+    }`;
+  }
+  if (options.suggestionsFeed) {
+    suggestionsFeedElem.innerHTML = `${
+      suggestionsFeedCSS[
+        window.location.pathname.startsWith("/@") ? "noInject" : "inject"
+      ]
+    }`;
+  }
   updateSidebarElem();
   viewsFunc();
   subsFunc();
-  if (options.comments && window.location.pathname === '/watch') { commentsElem.innerHTML = `${commentsCSS['inject']}` };
-  if (options.endScreen && window.location.pathname === '/watch') {
+  if (options.comments && window.location.pathname === "/watch") {
+    commentsElem.innerHTML = `${commentsCSS["inject"]}`;
+  }
+  if (options.endScreen && window.location.pathname === "/watch") {
     observeDOM(document, () => {
       endscreen();
     });
   }
-  if (options.shorts) { observeAndRemoveShorts() };
+  if (options.shorts) {
+    observeAndRemoveShorts();
+  }
+  blockOutsideSubscriptions();
 };
 
-
 // Update when settings are changed
-chrome.storage.onChanged.addListener(updateElem)
+chrome.storage.onChanged.addListener(updateElem);
 
 // Update when width changes or button is pressed
-window.addEventListener('resize', updateElem);
-button.addEventListener('click', updateSidebarElem);
+window.addEventListener("resize", updateElem);
+button.addEventListener("click", updateSidebarElem);
 
 // Update when moving page
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigation_API
 let lastPathname = window.location.pathname;
 setInterval(() => {
   if (lastPathname !== window.location.pathname) {
-    lastPathname = window.location.pathname
+    lastPathname = window.location.pathname;
     updateElem();
   }
 }, 3000);
 
+// Initalize the functions
+let intervalId = setInterval(() => {
+  if (document.getElementById("sections").childElementCount == 4 || document.getElementById("sections").childElementCount == 5) {
+    updateElem();
+    getSubscrtiptions();
+    console.log("Subscriptions: " + userSubscriptions);
+    clearInterval(intervalId);
+  }
+}, 200); 
 
 
-// Initialize on load
-updateElem()
-
-
-
-// from https://stackoverflow.com/a/14570614
 const observeDOM = (function () {
-  const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+  const MutationObserver =
+    window.MutationObserver || window.WebKitMutationObserver;
 
   return function (obj, callback) {
     if (!obj || !obj.nodeType === true) {
@@ -307,13 +387,11 @@ const observeDOM = (function () {
     }
     if (MutationObserver) {
       const obs = new MutationObserver(function (mutations) {
-        if (mutations[0].addedNodes.length)
-          callback(mutations[0]);
+        if (mutations[0].addedNodes.length) callback(mutations[0]);
       });
       obs.observe(obj, { childList: true, subtree: true });
     } else if (window.addEventListener) {
-      obj.addEventListener('DOMNodeInserted', callback, false);
+      obj.addEventListener("DOMNodeInserted", callback, false);
     }
-  }
+  };
 })();
-
