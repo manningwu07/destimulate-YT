@@ -304,13 +304,60 @@ const getSubscrtiptions = () => {
   if (sections.childElementCount === 5) {
     const items = sections.children[1].children[1];
     for (let i = 0; i < items.children.length - 1; i++) {
-      const subscription = items.children[i].children[0].children[0].children[2];
-      userSubscriptions.push(subscription.innerText);
+      const subscription =
+        items.children[i].children[0].children[0].children[2];
+      if (!userSubscriptions.includes(subscription.innerText)) {
+        userSubscriptions.push(subscription.innerText);
+      }
     }
   }
 };
 
-const blockOutsideSubscriptions = () => {};
+const blockOutsideSubscriptions = async (component) => {
+  const options = await loadOptions();
+  if (options.blockOutsideSubscriptions) {
+    const contents = component.querySelector("#contents");
+    const videos = Array.from(contents.querySelectorAll('[lockup="true"]'));
+
+    const filteredVideos = videos.filter((video) => {
+      const hasLink = video.querySelector(
+        "a.yt-simple-endpoint.style-scope.yt-formatted-string"
+      );
+      const isVisible = video.style.display !== "none";
+      return hasLink && isVisible;
+    });
+
+    filteredVideos.forEach((video) => {
+      const youtuber = video.querySelector(
+        "a.yt-simple-endpoint.style-scope.yt-formatted-string"
+      );
+      if (!userSubscriptions.includes(youtuber.innerText)) {
+        video.style.display = "none";
+      }
+    });
+  }
+};
+
+const blockOutsideSubscriptionsWatch = async () => {
+  const options = await loadOptions();
+  if (options.blockOutsideSubscriptions) {
+    const contents = document.querySelector("#page-manager #related #contents");
+    const videos = Array.from(contents.querySelectorAll('[lockup="true"]'));
+
+    const filteredVideos = videos.filter((video) => {
+      const hasLink = video.querySelector("#metadata #text");
+      const isVisible = video.style.display !== "none";
+      return hasLink && isVisible;
+    });
+
+    filteredVideos.forEach((video) => {
+      const youtuber = video.querySelector("#metadata #text");
+      if (!userSubscriptions.includes(youtuber.innerText)) {
+        video.style.display = "none";
+      }
+    });
+  }
+};
 
 const updateElem = async () => {
   const options = await loadOptions();
@@ -331,8 +378,6 @@ const updateElem = async () => {
       ]
     }`;
   }
-  viewsFunc();
-  subsFunc();
   if (options.comments && window.location.pathname === "/watch") {
     commentsElem.innerHTML = `${commentsCSS["inject"]}`;
   }
@@ -344,7 +389,6 @@ const updateElem = async () => {
   if (options.shorts) {
     observeAndRemoveShorts();
   }
-  blockOutsideSubscriptions();
 };
 
 // Update when settings are changed
@@ -361,6 +405,9 @@ setInterval(() => {
   if (lastPathname !== window.location.pathname) {
     lastPathname = window.location.pathname;
     updateElem();
+    viewsFunc();
+    subsFunc();
+    blockOutsideSubscriptions();
   }
 }, 3000);
 
@@ -375,11 +422,32 @@ let intervalId = setInterval(() => {
     ) {
       updateSidebarElem();
       getSubscrtiptions();
-      console.log("Subscriptions: " + userSubscriptions);
       clearInterval(intervalId);
     }
   }
-}, 1000); 
+}, 1000);
+
+setInterval(() => {
+  const content = document.getElementById("contents");
+  if (content !== null) {
+    const pathname = window.location.pathname;
+    viewsFunc();
+    subsFunc();
+    if (pathname === "/") {
+      const browseComponent = document.querySelector(
+        "#page-manager > ytd-browse"
+      );
+      blockOutsideSubscriptions(browseComponent);
+    } else if (pathname.startsWith("/watch")) {
+      blockOutsideSubscriptionsWatch();
+    } else if (pathname.startsWith("/results")) {
+      const searchComponent = document.querySelector(
+        "#page-manager > ytd-search"
+      );
+      blockOutsideSubscriptions(searchComponent);
+    }
+  }
+}, 1500);
 
 const observeDOM = (function () {
   const MutationObserver =

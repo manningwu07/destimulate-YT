@@ -11,6 +11,7 @@ const defaultOptions = {
     thumbnails: 'normal',
     endScreen: true,
     shorts: true,
+    blockOutsideSubscriptions: true,
   };
 
 

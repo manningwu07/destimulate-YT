@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   form.thumbnails.value = options.thumbnails;
   form.endScreen.checked = options.endScreen;
   form.shorts.checked = options.shorts;
-
+  form.blockOutsideVideos.checked = options.blockOutsideSubscriptions;
 });
 
 // Save on change
@@ -36,6 +36,7 @@ form.addEventListener('change', async () => {
     thumbnails: form.thumbnails.value,
     endScreen: form.endScreen.checked,
     shorts: form.shorts.checked,
+    blockOutsideSubscriptions: form.blockOutsideVideos.checked,
   });
 
   
