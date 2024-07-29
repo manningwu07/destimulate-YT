@@ -301,11 +301,10 @@ const observeAndRemoveShorts = () => {
 
 const getSubscrtiptions = () => {
   const sections = document.getElementById("sections");
-  if (sections.childElementCount === 4) {
-    const subscriptionsTab = sections.children[1];
-    const items = subscriptionsTab.getElementById("items");
+  if (sections.childElementCount === 5) {
+    const items = sections.children[1].children[1];
     for (let i = 0; i < items.children.length - 1; i++) {
-      const subscription = items.children[0].children[0].children[2];
+      const subscription = items.children[i].children[0].children[0].children[2];
       userSubscriptions.push(subscription.innerText);
     }
   }
@@ -332,7 +331,6 @@ const updateElem = async () => {
       ]
     }`;
   }
-  updateSidebarElem();
   viewsFunc();
   subsFunc();
   if (options.comments && window.location.pathname === "/watch") {
@@ -367,15 +365,21 @@ setInterval(() => {
 }, 3000);
 
 // Initalize the functions
-let intervalId = setInterval(() => {
-  if (document.getElementById("sections").childElementCount == 4 || document.getElementById("sections").childElementCount == 5) {
-    updateElem();
-    getSubscrtiptions();
-    console.log("Subscriptions: " + userSubscriptions);
-    clearInterval(intervalId);
-  }
-}, 200); 
+updateElem();
 
+let intervalId = setInterval(() => {
+  if (document.getElementById("sections") !== null) {
+    if (
+      document.getElementById("sections").childElementCount == 4 ||
+      document.getElementById("sections").childElementCount == 5
+    ) {
+      updateSidebarElem();
+      getSubscrtiptions();
+      console.log("Subscriptions: " + userSubscriptions);
+      clearInterval(intervalId);
+    }
+  }
+}, 1000); 
 
 const observeDOM = (function () {
   const MutationObserver =
